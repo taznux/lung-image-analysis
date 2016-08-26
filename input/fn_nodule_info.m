@@ -1,4 +1,4 @@
-function [nodule_img_3d nodule_info] = fn_nodule_info(lung_img_3d,pid,dicom_tags,filename)
+function [nodule_img_3d, nodule_info] = fn_nodule_info(lung_img_3d,pid,dicom_tags,filename)
 
 %% unblinded read nodule
 num=size(dicom_tags,2);
@@ -23,7 +23,7 @@ sn = sessions.getLength; %one xml file's # of reading session
 nodule_info = [];
 cc = [];
 
-nodule_img_3d = zeros(size(lung_img_3d));
+nodule_img_3d = single(zeros(size(lung_img_3d)));
 
 %% get the nodule 3d image & information
 
@@ -46,19 +46,7 @@ for si = 1:sn
         
         nodule = nodules.item(i - 1);
         id = nodule.getElementsByTagName('noduleID');
-        id = char(id.item(0).getTextContent);%id = noduleID values store,
-        %noduleID: Nodule numbers or
-        %noduleID: numbers
-        %ex) noduleID: Nodule 001 or
-        %    noduleID: 1514
-        if size(str2num(id),1) == 0
-            [aid bid] = strtok(id, ' '); %% get the numbers in noduleID
-            id = bid;
-        end
-        
-        id = 100000 * si + str2num(id);
-        %final nodule id(first: human & last things nodule id)
-        
+        nid = char(id.item(0).getTextContent);%id = noduleID values store,       
         
         % get the roi elements & # of them in nodule
         rois = nodule.getElementsByTagName('roi'); % 'roi' is edge map (x&y-coordinate values)
@@ -66,7 +54,6 @@ for si = 1:sn
         
         
         %% extract characteristics
-        
         ch =  nodule.getElementsByTagName('characteristics'); % characteristics elements store
         
         c = nodule_characteristic; % use initial value which we made before via structure shape
@@ -74,51 +61,36 @@ for si = 1:sn
         %
         if ch.getLength > 0 &&m>1
             sub = ch.item(0).getElementsByTagName('subtlety');
-            c.subtlety = str2num(sub.item(0).getTextContent);
+            c.subtlety = str2int(sub.item(0).getTextContent);
             
             int = ch.item(0).getElementsByTagName('internalStructure');
-            c.internalstrue = str2num(int.item(0).getTextContent);
+            c.internalstrue = str2int(int.item(0).getTextContent);
             
             cal = ch.item(0).getElementsByTagName('calcification');
-            c.calcification = str2num(cal.item(0).getTextContent);
+            c.calcification = str2int(cal.item(0).getTextContent);
             
             sph = ch.item(0).getElementsByTagName('sphericity');
-            c.sphericity = str2num(sph.item(0).getTextContent);
+            c.sphericity = str2int(sph.item(0).getTextContent);
             
             mar = ch.item(0).getElementsByTagName('margin');
-            c.margin = str2num(mar.item(0).getTextContent);
+            c.margin = str2int(mar.item(0).getTextContent);
             
             lob = ch.item(0).getElementsByTagName('lobulation');
-            c.lobulation = str2num(lob.item(0).getTextContent);
+            c.lobulation = str2int(lob.item(0).getTextContent);
             
             spi = ch.item(0).getElementsByTagName('spiculation');
-            c.spiculation = str2num(spi.item(0).getTextContent);
+            c.spiculation = str2int(spi.item(0).getTextContent);
             
             tex = ch.item(0).getElementsByTagName('texture');
-            c.texture = str2num(tex.item(0).getTextContent);
+            c.texture = str2int(tex.item(0).getTextContent);
             
             mal = ch.item(0).getElementsByTagName('malignancy');
-            c.malignancy = str2num(mal.item(0).getTextContent);
+            c.malignancy = str2int(mal.item(0).getTextContent);
         else
             c.subtlety =0;
             c.internalstruc =0;
             
-        end
-        % this 'if statement' can store the values in 'c structure'.
-        %             cc(i) = c;
-        
-        %initializing the values
-        
-        l_Mx = [];
-        l_mx = [];
-        l_My = [];
-        l_my = [];
-        l_z = [];
-        %
-        
-        
-        
-        
+        end       
         
         % get roi coordinate , uid, inclusion values
         for j = 1:m
@@ -139,25 +111,16 @@ for si = 1:sn
             x = zeros(1,mm);
             y = zeros(1,mm);
             for k = 1:mm
-                x(k) = str2num(xx.item(k-1).getTextContent); % x-coordinates of a piece of rois store
-                y(k) = str2num(yy.item(k-1).getTextContent); % y-coordinates of a piece of rois store
+                x(k) = str2int(xx.item(k-1).getTextContent); % x-coordinates of a piece of rois store
+                y(k) = str2int(yy.item(k-1).getTextContent); % y-coordinates of a piece of rois store
             end
-            
-            % maximum & minimum values from x & y-coordinates stored
-            
-            Mx = max(x);
-            mx = min(x);
-            My = max(y);
-            my = min(y);
             
             
             % get the z values from uid in dicom_tags
             z = fn_uid_to_zindex(uid,dicom_tags,zpos);
             
             %nodule images stack via z values & x,y values
-            nodule_img_3d_in(:,:,z) = nodule_img_3d_in(:,:,z)|double(poly2mask(x',y',512,512));
-            
-            
+            nodule_img_3d_in(:,:,z) = nodule_img_3d_in(:,:,z)|single(poly2mask(x',y',512,512));
         end
         
         if sum(nodule_img_3d_in(:)) > 0
