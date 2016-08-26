@@ -21,12 +21,9 @@ sn = sessions.getLength; %one xml file's # of reading session
 
 %% initializing the value
 nodule_info = [];
-cc = [];
 
 nodule_img_3d = single(zeros(size(lung_img_3d)));
-
 %% get the nodule 3d image & information
-
 for si = 1:sn
     %         cc=[cc, cc_in];
     session = sessions.item(si - 1); %sessions informations store
@@ -46,7 +43,7 @@ for si = 1:sn
         
         nodule = nodules.item(i - 1);
         id = nodule.getElementsByTagName('noduleID');
-        nid = char(id.item(0).getTextContent);%id = noduleID values store,       
+        nid = char(id.item(0).getTextContent);%id = noduleID values store,
         
         % get the roi elements & # of them in nodule
         rois = nodule.getElementsByTagName('roi'); % 'roi' is edge map (x&y-coordinate values)
@@ -59,7 +56,7 @@ for si = 1:sn
         c = nodule_characteristic; % use initial value which we made before via structure shape
         
         %
-        if ch.getLength > 0 &&m>1
+        if ch.getLength > 0 && m > 1
             sub = ch.item(0).getElementsByTagName('subtlety');
             c.subtlety = str2double(sub.item(0).getTextContent);
             
@@ -89,8 +86,7 @@ for si = 1:sn
         else
             c.subtlety =0;
             c.internalstruc =0;
-            
-        end       
+        end
         
         % get roi coordinate , uid, inclusion values
         for j = 1:m
@@ -123,32 +119,51 @@ for si = 1:sn
             nodule_img_3d_in(:,:,z) = nodule_img_3d_in(:,:,z)|single(poly2mask(x',y',512,512));
         end
         
-        if sum(nodule_img_3d_in(:)) > 0
-            
-            nodule_region_values=regionprops(nodule_img_3d_in,lung_img_3d,'WeightedCentroid','Area','BoundingBox');
+        if numel(find(nodule_img_3d_in(:)) > 0)
+            nodule_region_values=regionprops(nodule_img_3d_in,lung_img_3d, ...
+                'Area','FilledArea','Centroid','BoundingBox','WeightedCentroid', ...
+                'MeanIntensity','MinIntensity','MaxIntensity','Image','FilledImage', ...
+                'SubarrayIdx','PixelIdxList','PixelList','PixelValues');
             
             nodule_area=[nodule_region_values.Area];
             
             [~ , i_r] = max(nodule_area);
             
+            nodule = struct;
+            nodule.pid = pid;
+            nodule.sid = si;
+            nodule.nid = nid;
+            nodule.hit = false;
             
+            nodule.Volume = nodule_region_values(i_r).Area*px_xsize*px_ysize*thick;% acctually volume
+            nodule.FilledVolume = nodule_region_values(i_r).FilledArea*px_xsize*px_ysize*thick;
+            nodule.BoundingBox = nodule_region_values(i_r).BoundingBox.*[px_xsize px_ysize thick px_xsize px_ysize thick];
+            nodule.Centroid = nodule_region_values(i_r).Centroid.*[px_xsize px_ysize thick];
+            nodule.WeightedCentroid = nodule_region_values(i_r).WeightedCentroid.*[px_xsize px_ysize thick];
             
-            nodule_centroid=nodule_region_values(i_r).WeightedCentroid;
-            nodule_boundingbox=nodule_region_values(i_r).BoundingBox;
+            nodule.MeanIntensity=nodule_region_values(i_r).MeanIntensity;
+            nodule.MinIntensity=nodule_region_values(i_r).MinIntensity;
+            nodule.MaxIntensity=nodule_region_values(i_r).MaxIntensity;
             
+            nodule.Image=nodule_region_values(i_r).Image;
+            nodule.FilledImage=nodule_region_values(i_r).FilledImage;
             
-            nodule_centroid_mm=(nodule_centroid-1).*[px_xsize px_ysize thick];
-            nodule_boundingbox_mm=nodule_boundingbox.*[px_xsize px_ysize thick px_xsize px_ysize thick];
+            nodule.Centroid_idx=nodule_region_values(i_r).Centroid;
+            nodule.WeightedCentroid_idx=nodule_region_values(i_r).WeightedCentroid;
+            nodule.BoundingBox_idx=nodule_region_values(i_r).BoundingBox;
             
-            nodule = struct('pid', pid, 'sid', si, 'nid', nid,'hit',false,'characteristics',c,'centroid',nodule_centroid, 'boundingbox',nodule_boundingbox,'centroid_mm',nodule_centroid_mm, 'boundingbox_mm',nodule_boundingbox_mm);
+            nodule.SubarrayIdx=nodule_region_values(i_r).SubarrayIdx;
+            nodule.PixelIdxList=nodule_region_values(i_r).PixelIdxList;
+            nodule.PixelList=nodule_region_values(i_r).PixelList;
+            nodule.PixelValues=nodule_region_values(i_r).PixelValues;
             
             nodule_info = [nodule_info; nodule] ;
             
             nodule_img_3d=nodule_img_3d+nodule_img_3d_in.*(2^(si-1)); % add binary weight values, for easy to comparing reading session
         else
             
-        end       
-    end  
+        end
+    end
 end
 nodule_info = struct2table(nodule_info); % convert to table
 end

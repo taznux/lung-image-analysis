@@ -1,24 +1,35 @@
 function [ nodule_candidates_features ] = fn_feature_extraction(pid, nodule_candidates_morphology_img_3d, interpol_lung_img_3d, iso_px_size)
-    % simple image features from regionprops
-    nodule_candidates_region_features=regionprops(nodule_candidates_morphology_img_3d>0, interpol_lung_img_3d, ...
-    'Area','Centroid','BoundingBox','SubarrayIdx','FilledImage','FilledArea','PixelIdxList','PixelList', ... 
-    'PixelValues','WeightedCentroid','MeanIntensity','MinIntensity','MaxIntensity');
-    
-    nnum = size(nodule_candidates_region_features,1);
-    
-    nodule_candidates_features = table;
-    nodule_candidates_features.pid = repmat(pid, nnum,1);
-    nodule_candidates_features.nid = (1:nnum)';
-    nodule_candidates_features.hit = false(nnum,1);
-    
-    for n=1:nnum
-        nodule_candidates_region_features(n).Area = nodule_candidates_region_features(n).Area*iso_px_size^3;% acctually volume
-        nodule_candidates_region_features(n).BoundingBox = nodule_candidates_region_features(n).BoundingBox*iso_px_size;
-        nodule_candidates_region_features(n).Centroid = nodule_candidates_region_features(n).Centroid*iso_px_size;
-        nodule_candidates_region_features(n).FilledArea = nodule_candidates_region_features(n).FilledArea*iso_px_size;
-        nodule_candidates_region_features(n).WeightedCentroid = nodule_candidates_region_features(n).WeightedCentroid*iso_px_size;
-    end
-    
-    nodule_candidates_features = [nodule_candidates_features struct2table(nodule_candidates_region_features)];
+% simple image features from regionprops
+nodule_candidates_region_features = regionprops(nodule_candidates_morphology_img_3d>0, interpol_lung_img_3d, ...
+    'Area','FilledArea','Centroid','BoundingBox','WeightedCentroid', ...
+    'MeanIntensity','MinIntensity','MaxIntensity','Image','FilledImage', ...
+    'SubarrayIdx','PixelIdxList','PixelList','PixelValues');
+
+nnum = size(nodule_candidates_region_features,1);
+
+nodule_candidates_features = table;
+nodule_candidates_features.pid = repmat(pid, nnum,1);
+nodule_candidates_features.nid = (1:nnum)';
+nodule_candidates_features.hit = false(nnum,1);
+
+nodule_candidates_features.Volume = [nodule_candidates_region_features.Area]'*iso_px_size^3;
+nodule_candidates_features.FilledVolume = [nodule_candidates_region_features.FilledArea]'*iso_px_size^3;
+
+nodule_candidates_features.BoundingBox = cell2mat({nodule_candidates_region_features.BoundingBox}')*iso_px_size;
+nodule_candidates_features.Centroid = cell2mat({nodule_candidates_region_features.Centroid}')*iso_px_size;
+nodule_candidates_features.WeightedCentroid = cell2mat({nodule_candidates_region_features.WeightedCentroid}')*iso_px_size;
+
+nodule_candidates_features.MeanIntensity=[nodule_candidates_region_features.MeanIntensity]';
+nodule_candidates_features.MinIntensity=[nodule_candidates_region_features.MinIntensity]';
+nodule_candidates_features.MaxIntensity=[nodule_candidates_region_features.MaxIntensity]';
+
+nodule_candidates_features.Image={nodule_candidates_region_features.Image}';
+nodule_candidates_features.FilledImage={nodule_candidates_region_features.FilledImage}';
+
+nodule_candidates_features.SubarrayIdx={nodule_candidates_region_features.SubarrayIdx}';
+nodule_candidates_features.PixelIdxList={nodule_candidates_region_features.PixelIdxList}';
+nodule_candidates_features.PixelList={nodule_candidates_region_features.PixelList}';
+nodule_candidates_features.PixelValues={nodule_candidates_region_features.PixelValues}';
+
 end
 

@@ -8,14 +8,11 @@ cc = bwconncomp(nodule_peak_img_3d>300);(nodule_peak_img_3d>300);
 s = regionprops(cc, 'Centroid', 'Area');
 p = floor(reshape([s.Centroid], 3, size(s,1))');
 sel = [s.Area]> 20;
-pp=p(sel,[2 1 3]);
+
 cc.NumObjects = sum(sel);
-cc.PixelIdxList={cc.PixelIdxList{sel}};
+cc.PixelIdxList = cc.PixelIdxList(sel);
 
 L = labelmatrix(cc);
 
-
 nodule_candidates_morphology_img_3d = L > 0;
-
-
 end

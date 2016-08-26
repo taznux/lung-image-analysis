@@ -1,4 +1,4 @@
-function [lung_img_3d nodule_img_3d dicom_tags thick pixelsize, nodule_info] = fn_dicom_read(ipath,pid)
+function [lung_img_3d, nodule_img_3d, dicom_tags, thick, pixelsize, nodule_info] = fn_dicom_read(ipath,pid)
 
 %% get dcm files and # of files
 
