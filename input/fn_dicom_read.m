@@ -37,7 +37,7 @@ pixelsize = single(dicom_tags{1}.PixelSpacing);
 lung_img_3d = single(ones(512,512,num)) * -2000; % for mathching HU field.
 
 for i = 1:num
-    I = int16(double(dicomread(dicom_tags{i})) + dicom_tags{i}.RescaleIntercept); % HU= SV*Rescaleslope+RescaleIntercept , SV=stored value
+    I = int16(single(dicomread(dicom_tags{i})) + dicom_tags{i}.RescaleIntercept); % HU= SV*Rescaleslope+RescaleIntercept , SV=stored value
     lung_img_3d(:,:,i) = I; % lung_3d = 512x512 ct image.
 end
 

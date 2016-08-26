@@ -62,7 +62,7 @@ se_erode=strel('disk', 1); %make disk for processing the dilation
 lung_seg_img_3d = false(size(lung_img_3d)); %initialize the segmented lung image
 %morphological close and erode the lung 3d images and stack them
 for z=1:znum
-    %          lung_seg_img_3d_dilation(:,:,z) = imdilate(lung_seg_img_3d_rg(:,:,z),se);
+    % lung_seg_img_3d_dilation(:,:,z) = imdilate(lung_seg_img_3d_rg(:,:,z),se);
     lung_seg_img_3d(:,:,z) = imerode(imclose(lung_seg_img_3d_rg(:,:,z),se),se_erode);
 end
 

@@ -84,9 +84,9 @@ for idx = 1:numel(pid_list)
     
     if(fn_check_load_data(filename_input, load_input))
         dicom_path = dicom_path_list{idx};
-        [lung_img_3d nodule_img_3d dicom_tags thick pixelsize nodule_info] = fn_dicom_read(dicom_path,pid);
+        [lung_img_3d, nodule_img_3d, dicom_tags, thick, pixelsize, nodule_info] = fn_dicom_read(dicom_path,pid);
         
-        save(filename_input, 'lung_img_3d', 'nodule_img_3d' ,'dicom_tags', 'thick' ,'pixelsize', 'nodule_info', 'cc');
+        save(filename_input, 'lung_img_3d', 'nodule_img_3d' ,'dicom_tags', 'thick' ,'pixelsize', 'nodule_info');
     else
         load(filename_input);
     end
@@ -150,7 +150,7 @@ for idx = 1:numel(pid_list)
     filename_load_evaluation_detection = [evaluation_detection_result_path pid '_'  num2str(iso_px_size,'%3.1f') '_Evalutation_detection .mat'];
     
     if(fn_check_load_data(filename_load_evaluation_detection, load_evaluation_detection))
-        [nodule_candidates_features nodule_info]=fn_evaluation(nodule_candidates_features,nodule_info,min_resolution);
+        [nodule_candidates_features, nodule_info]=fn_evaluation(nodule_candidates_features,nodule_info,min_resolution);
         save(filename_load_evaluation_detection,'nodule_candidates_features', 'nodule_info');
     else
         load(filename_load_evaluation_detection);
