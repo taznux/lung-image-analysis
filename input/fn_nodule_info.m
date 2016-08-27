@@ -129,11 +129,11 @@ for si = 1:sn
             
             [~ , i_r] = max(nodule_area);
             
-            nodule = struct;
-            nodule.pid = pid;
-            nodule.sid = si;
-            nodule.nid = nid;
-            nodule.hit = false;
+            nodule = table;
+            nodule.pid = {pid};
+            nodule.sid = {num2str(si)};
+            nodule.nid = {nid};
+            nodule.hit = 0;
             
             nodule.Volume = nodule_region_values(i_r).Area*px_xsize*px_ysize*thick;% acctually volume
             nodule.FilledVolume = nodule_region_values(i_r).FilledArea*px_xsize*px_ysize*thick;
@@ -145,17 +145,19 @@ for si = 1:sn
             nodule.MinIntensity=nodule_region_values(i_r).MinIntensity;
             nodule.MaxIntensity=nodule_region_values(i_r).MaxIntensity;
             
-            nodule.Image=nodule_region_values(i_r).Image;
-            nodule.FilledImage=nodule_region_values(i_r).FilledImage;
+            nodule.Image={nodule_region_values(i_r).Image};
+            nodule.FilledImage={nodule_region_values(i_r).FilledImage};
             
             nodule.Centroid_idx=nodule_region_values(i_r).Centroid;
             nodule.WeightedCentroid_idx=nodule_region_values(i_r).WeightedCentroid;
             nodule.BoundingBox_idx=nodule_region_values(i_r).BoundingBox;
             
-            nodule.SubarrayIdx=nodule_region_values(i_r).SubarrayIdx;
-            nodule.PixelIdxList=nodule_region_values(i_r).PixelIdxList;
-            nodule.PixelList=nodule_region_values(i_r).PixelList;
-            nodule.PixelValues=nodule_region_values(i_r).PixelValues;
+            nodule.SubarrayIdx={nodule_region_values(i_r).SubarrayIdx};
+            nodule.PixelIdxList={nodule_region_values(i_r).PixelIdxList};
+            nodule.PixelList={nodule_region_values(i_r).PixelList};
+            nodule.PixelValues={nodule_region_values(i_r).PixelValues};
+            
+            nodule.Characteristics = struct2table(c);
             
             nodule_info = [nodule_info; nodule] ;
             
@@ -165,6 +167,5 @@ for si = 1:sn
         end
     end
 end
-nodule_info = struct2table(nodule_info); % convert to table
 end
 

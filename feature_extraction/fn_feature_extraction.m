@@ -8,9 +8,9 @@ nodule_candidates_region_features = regionprops(nodule_candidates_morphology_img
 nnum = size(nodule_candidates_region_features,1);
 
 nodule_candidates_features = table;
-nodule_candidates_features.pid = repmat(pid, nnum,1);
+nodule_candidates_features.pid = mat2cell(repmat(pid, nnum,1), ones(nnum,1));  
 nodule_candidates_features.nid = (1:nnum)';
-nodule_candidates_features.hit = false(nnum,1);
+nodule_candidates_features.hit = zeros(nnum,1);
 
 nodule_candidates_features.Volume = [nodule_candidates_region_features.Area]'*iso_px_size^3;
 nodule_candidates_features.FilledVolume = [nodule_candidates_region_features.FilledArea]'*iso_px_size^3;
