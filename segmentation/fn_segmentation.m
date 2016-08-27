@@ -57,7 +57,7 @@ lung_seg_img_3d_rg=(lung_seg_label==lung_left_label)|(lung_seg_label==lung_right
 
 %% morphological process
 se=strel('disk', 2); %make disk for processing the dilation
-se_erode=strel('disk', 1); %make disk for processing the dilation
+se_erode=strel('disk', 1); %make disk for processing the erosion
 
 lung_seg_img_3d = false(size(lung_img_3d)); %initialize the segmented lung image
 %morphological close and erode the lung 3d images and stack them

@@ -74,6 +74,7 @@ load_evaluation_detection = false;
 [dicom_path_list,pid_list]=fn_scan_pid(path_data);
 
 nodule_detection_evaluation = [];
+all_detected_nodules = [];
 all_nodules = [];
 
 %% main process
@@ -154,11 +155,13 @@ for idx = 1:numel(pid_list)
     
     if(fn_check_load_data(filename_load_evaluation_detection, load_evaluation_detection))
         [nodule_candidates_features, nodule_info, num_of_nodule_info]=fn_evaluation(nodule_candidates_features,nodule_info,min_resolution);
+        nodule_candidates_features.LD = max(nodule_candidates_features.BoundingBox(:,4:6),[],2);
+        all_detected_nodules = [all_detected_nodules; nodule_candidates_features(:,{'pid','nid','LD','Centroid','MaxIntensity','hit'})];
         if(numel(nodule_info)>0 && numel(nodule_info.hit>0)>0)
             %nodule_candidates_features(nodule_candidates_features.hit>0,{'pid','nid'})
             nodule_info.LD = max(nodule_info.BoundingBox(:,4:6),[],2);
+            all_nodules = [all_nodules; nodule_info(:,{'pid','sid','nid','LD','Centroid','MaxIntensity','hit'})];
             
-            all_nodules = [all_nodules; nodule_info(:,{'pid','sid','nid','LD','hit'})];
             pt = [];
             for sid = unique(nodule_info.sid)'
                 tpr = mean(nodule_info(cell2mat(nodule_info.sid(:)) == sid{1},:).hit>0);

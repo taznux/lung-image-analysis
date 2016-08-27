@@ -7,7 +7,7 @@ num_of_nodule_info=[];
 
 for j=1:nnum
     for i=1:cnum
-        evaluations=sqrt(sum((nodule_candidates_features.Centroid(i,:)-nodule_info.Centroid(j,:)).^2));
+        evaluations=sqrt(sum((nodule_candidates_features.WeightedCentroid(i,:)-nodule_info.WeightedCentroid(j,:)).^2));
         % evaluation_result=[evaluation_result;evaluations];
         max_distance=max(nodule_info.BoundingBox(j,4:6))/4+min_resolution*2;
         if evaluations < max_distance
