@@ -32,12 +32,6 @@ for si = 1:sn
     n = nodules.getLength; % # of unblindedreadnodule in one of reading sessions
     
     % initializing the values
-    
-    
-    nodule_characteristic = struct('subtlety',0,'internalstruc',0,'calcification',0,'sphericity',0,'margin',0,...
-        'lobulation',0,'spiculation',0,'texture',0,'malignancy',0); % store the nodule's characteristic by using structure shape
-    
-    
     for i = 1:n
         nodule_img_3d_in = zeros(size(lung_img_3d));
         
@@ -53,39 +47,46 @@ for si = 1:sn
         %% extract characteristics
         ch =  nodule.getElementsByTagName('characteristics'); % characteristics elements store
         
-        c = nodule_characteristic; % use initial value which we made before via structure shape
+        c = table; % use initial value which we made before via structure shape
         
         %
         if ch.getLength > 0 && m > 1
             sub = ch.item(0).getElementsByTagName('subtlety');
-            c.subtlety = str2double(sub.item(0).getTextContent);
+            c.Subtlety = str2double(sub.item(0).getTextContent);
             
             int = ch.item(0).getElementsByTagName('internalStructure');
-            c.internalstrue = str2double(int.item(0).getTextContent);
+            c.InternalStructure = str2double(int.item(0).getTextContent);
             
             cal = ch.item(0).getElementsByTagName('calcification');
-            c.calcification = str2double(cal.item(0).getTextContent);
+            c.Calcification = str2double(cal.item(0).getTextContent);
             
             sph = ch.item(0).getElementsByTagName('sphericity');
-            c.sphericity = str2double(sph.item(0).getTextContent);
+            c.Sphericity = str2double(sph.item(0).getTextContent);
             
             mar = ch.item(0).getElementsByTagName('margin');
-            c.margin = str2double(mar.item(0).getTextContent);
+            c.Margin = str2double(mar.item(0).getTextContent);
             
             lob = ch.item(0).getElementsByTagName('lobulation');
-            c.lobulation = str2double(lob.item(0).getTextContent);
+            c.Lobulation = str2double(lob.item(0).getTextContent);
             
             spi = ch.item(0).getElementsByTagName('spiculation');
-            c.spiculation = str2double(spi.item(0).getTextContent);
+            c.Spiculation = str2double(spi.item(0).getTextContent);
             
             tex = ch.item(0).getElementsByTagName('texture');
-            c.texture = str2double(tex.item(0).getTextContent);
+            c.Texture = str2double(tex.item(0).getTextContent);
             
             mal = ch.item(0).getElementsByTagName('malignancy');
-            c.malignancy = str2double(mal.item(0).getTextContent);
+            c.Malignancy = str2double(mal.item(0).getTextContent);
         else
-            c.subtlety =0;
-            c.internalstruc =0;
+            c.Subtlety = 0;
+            c.InternalStructure = 0;
+            c.Calcification = 0;
+            c.Sphericity = 0;
+            c.Margin = 0;
+            c.Lobulation = 0;
+            c.Spiculation = 0;
+            c.Texture = 0;
+            c.Malignancy = 0;
         end
         
         % get roi coordinate , uid, inclusion values
@@ -157,7 +158,7 @@ for si = 1:sn
             nodule.PixelList={nodule_region_values(i_r).PixelList};
             nodule.PixelValues={nodule_region_values(i_r).PixelValues};
             
-            nodule.Characteristics = struct2table(c);
+            nodule.Characteristics = c;
             
             nodule_info = [nodule_info; nodule] ;
             
