@@ -1,4 +1,4 @@
-function [lung_seg_img_3d,T]=fn_segmentation(lung_img_3d)
+function [lung_seg_img_3d,T]=fn_lung_segmentation(lung_img_3d)
 % get image size
 [xnum,ynum,znum]=size(lung_img_3d);
 
@@ -62,14 +62,20 @@ se_erode=strel('disk', 1); %make disk for processing the erosion
 lung_seg_img_3d = false(size(lung_img_3d)); %initialize the segmented lung image
 %morphological close and erode the lung 3d images and stack them
 for z=1:znum
-    % lung_seg_img_3d_dilation(:,:,z) = imdilate(lung_seg_img_3d_rg(:,:,z),se);
     lung_seg_img_3d(:,:,z) = imerode(imclose(lung_seg_img_3d_rg(:,:,z),se),se_erode);
 end
 
-lung_seg_img_3d=imfill(lung_seg_img_3d, 'holes');
-
 
 %% Contour correction
+for z=1:znum
+    % fill the holes
+    s = bwfill(lung_seg_img_3d(:,:,z),'holes');
+   
+    % remove cirtical section
+    corrected_s = fn_remove_critical_section(s, 20); %% critical section
+        
+    lung_seg_img_3d(:,:,z) = corrected_s;
+end
 
 
 end

@@ -10,7 +10,7 @@ addpath(genpath([pwd '/toolbox']))
 util_path=[pwd '/util'];
 input_path=[pwd '/input'];
 interpolation_path=[pwd '/interpolation'];
-segmentation_path=[pwd '/segmentation'];
+segmentation_path=[pwd '/lung_segmentation'];
 nodule_seg_path=[pwd '/nodule_seg'];
 candidates_path=[pwd '/nodule_candidate_detection'];
 feature_extraction_path=[pwd '/feature_extraction'];
@@ -79,6 +79,8 @@ all_nodules = [];
 
 %% main process
 for idx = 1:numel(pid_list)
+    fclose('all'); % to avoid too many files open
+    
     pid = pid_list{idx};
     tic % tic starts a stopwatch timer
     fprintf('%d %s\n', idx, pid);
@@ -114,7 +116,7 @@ for idx = 1:numel(pid_list)
     filename_segmentation = [seg_img_path pid '_'  num2str(iso_px_size,'%3.1f') '_segmentation.mat'];
     
     if(fn_check_load_data(filename_segmentation, load_segmentation))
-        [lung_seg_img_3d,T]=fn_segmentation(interpol_lung_img_3d);
+        [lung_seg_img_3d,T]=fn_lung_segmentation(interpol_lung_img_3d);
         
         save(filename_segmentation,'lung_seg_img_3d','T');
     else
