@@ -34,8 +34,13 @@ for idx = 1:dirnum
             end
             serise_path = [study_path '/' file1(idx2).name '/'];
             
-            dicom_path_list{j} = serise_path; % get the last directory lists
-            j = j+1;
+            dcms = dir([serise_path '*.dcm']); %get the *.dcm files
+            dcm_tag = dicominfo([serise_path dcms(1).name]);
+            
+            if isfield(dcm_tag, 'ImagePositionPatient')
+                dicom_path_list{j} = serise_path; % get the last directory lists
+                j = j+1;
+            end
         end
     end
 end
