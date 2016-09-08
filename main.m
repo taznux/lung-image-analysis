@@ -100,6 +100,9 @@ for idx = 1:numel(pid_list)
     %% minimum resoultion
     min_resolution=max([thick pixelsize(1) pixelsize(2)]);
     
+    if(numel(nodule_info)==0)
+        continue
+    end
     %% interpolation part
     filename_interpolation = [interpol_img_path pid '_'  num2str(iso_px_size,'%3.1f') '_interpolation.mat'];
     
@@ -122,18 +125,18 @@ for idx = 1:numel(pid_list)
     else
         load(filename_segmentation);
     end
-    fprintf('segmentation completed ... \t\t\t %6.2f sec\n', toc);   
+    fprintf('segmentation completed ... \t\t\t %6.2f sec\n', toc);
     
     
     %% nodule candidate detection part
-    filename_nodule_candidate_detection_images = [candidates_img_path pid '_'  num2str(iso_px_size,'%3.1f') '_candidates.mat'];
+    filename_nodule_candidate_detection = [candidates_img_path pid '_'  num2str(iso_px_size,'%3.1f') '_candidates.mat'];
     
-    if(fn_check_load_data(filename_nodule_candidate_detection_images, load_nodule_candidate_detection))
-        [nodule_candidates_img_3d]=fn_nodule_candidate_detection(interpol_lung_img_3d,lung_seg_img_3d);
+    if(fn_check_load_data(filename_nodule_candidate_detection, load_nodule_candidate_detection))
+        [nodule_candidates_img_3d]=fn_nodule_candidate_detection_multithreshold(interpol_lung_img_3d,lung_seg_img_3d);
         
-        save(filename_nodule_candidate_detection_images,'nodule_candidates_img_3d');
+        save(filename_nodule_candidate_detection,'nodule_candidates_img_3d');
     else
-        load(filename_nodule_candidate_detection_images);
+        load(filename_nodule_candidate_detection);
     end
     fprintf('nodule candidate detection completed ... \t %6.2f sec\n', toc);
     
@@ -157,12 +160,12 @@ for idx = 1:numel(pid_list)
     
     if(fn_check_load_data(filename_load_evaluation_detection, load_evaluation_detection))
         [nodule_candidates_features, nodule_info, num_of_nodule_info]=fn_evaluation(nodule_candidates_features,nodule_info,min_resolution);
-        nodule_candidates_features.LD = max(nodule_candidates_features.BoundingBox(:,4:6),[],2);
-        all_detected_nodules = [all_detected_nodules; nodule_candidates_features(:,{'pid','nid','LD','Centroid','MaxIntensity','hit'})];
+        nodule_candidates_features.LD = mean(nodule_candidates_features.BoundingBox(:,4:6),2);
+        all_detected_nodules = [all_detected_nodules; nodule_candidates_features(:,{'pid','nid','LD','Centroid','MeanIntensity','MaxIntensity','hit'})];
         if(numel(nodule_info)>0 && numel(nodule_info.hit>0)>0)
             %nodule_candidates_features(nodule_candidates_features.hit>0,{'pid','nid'})
-            nodule_info.LD = max(nodule_info.BoundingBox(:,4:6),[],2);
-            all_nodules = [all_nodules; nodule_info(:,{'pid','sid','nid','LD','Centroid','MaxIntensity','hit'})];
+            nodule_info.LD = mean(nodule_info.BoundingBox(:,4:6),2);
+            all_nodules = [all_nodules; nodule_info(:,{'pid','sid','nid','LD','Centroid','MeanIntensity','MaxIntensity','hit'})];
             
             pt = [];
             for sid = unique(nodule_info.sid)'
@@ -199,7 +202,7 @@ for sid = unique(nodule_detection_evaluation.sid)'
     session = table;
     session.sid = sid;
     session.tpr = tpr;
-
+    
     nodule_detection_summary = [nodule_detection_summary; session];
 end
 nodule_detection_summary
