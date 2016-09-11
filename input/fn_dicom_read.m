@@ -18,7 +18,7 @@ end
 %% sorting
 for i = 1:num
     for j = i+1:num
-        if dicom_tags{i}.InstanceNumber > dicom_tags{j}.InstanceNumber
+        if dicom_tags{i}.ImagePositionPatient(3) < dicom_tags{j}.ImagePositionPatient(3)
             temp = dicom_tags{i};
             dicom_tags{i} = dicom_tags{j};
             dicom_tags{j} = temp;

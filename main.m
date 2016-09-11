@@ -32,7 +32,7 @@ global path_nodule;
 global path_data;
 
 path_nodule = [pwd '/output_data']; %pwd : returns the current directory
-path_data = [pwd '/DATA/LIDC_old']; %dcm files directory
+path_data = [pwd '/DATA/LIDC-IRDI']; %dcm files directory
 
 %% set values
 iso_px_size=1; % a standard unit ('mm-unit')
@@ -60,18 +60,25 @@ if ~isdir(nodule_seg_eval_path); mkdir(nodule_seg_eval_path); end
 
 
 %% saved data load or not
-load_input = false;
-load_interpoltaion = false;
-load_segmentation = false;
-load_nodule_seg = false;
-load_nodule_seg_eval = false;
-load_nodule_candidate_detection = false;
-load_nodule_feature_extraction = false;
-load_evaluation_detection = false;
+load_input = true;
+load_interpoltaion = true;
+load_segmentation = true;
+load_nodule_seg = true;
+load_nodule_seg_eval = true;
+load_nodule_candidate_detection = true;
+load_nodule_feature_extraction = true;
+load_evaluation_detection = true;
 
 
 %% get pids
-[dicom_path_list,pid_list]=fn_scan_pid(path_data);
+filename_pid_list = [path_nodule 'dicom_pid_list.mat'];
+if(fn_check_load_data(filename_pid_list, load_input))
+    [dicom_path_list,pid_list]=fn_scan_pid(path_data);
+
+    save(filename_pid_list, 'dicom_path_list', 'pid_list');
+else
+    load(filename_pid_list);
+end
 
 nodule_detection_evaluation = [];
 all_detected_nodules = [];

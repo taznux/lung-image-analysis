@@ -116,6 +116,10 @@ for si = 1:sn
             % get the z values from uid in dicom_tags
             z = fn_uid_to_zindex(uid,dicom_tags,zpos);
             
+            if (z == 0)
+                continue
+            end
+            
             %nodule images stack via z values & x,y values
             nodule_img_3d_in(:,:,z) = nodule_img_3d_in(:,:,z)|single(poly2mask(x',y',512,512));
         end
