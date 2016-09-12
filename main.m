@@ -8,7 +8,7 @@ addpath(genpath([pwd '/toolbox']))
 
 %% module path values
 util_path=[pwd '/util'];
-input_path=[pwd '/input'];
+input_path=[pwd '/io'];
 interpolation_path=[pwd '/interpolation'];
 segmentation_path=[pwd '/lung_segmentation'];
 nodule_seg_path=[pwd '/nodule_seg'];
@@ -216,7 +216,7 @@ nodule_detection_summary
 
 
 % module rmpath
-% rmpath('./input');
+% rmpath('./io');
 % rmpath('./interpolation');
 % rmpath('./segmentation');
 % rmpath('./nodule_candidate_detection');
