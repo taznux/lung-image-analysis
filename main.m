@@ -71,7 +71,7 @@ load_evaluation_detection = true;
 
 
 %% get pids
-filename_pid_list = [path_nodule 'dicom_pid_list.mat'];
+filename_pid_list = [path_nodule '/dicom_pid_list.mat'];
 if(fn_check_load_data(filename_pid_list, load_input))
     [dicom_path_list,pid_list]=fn_scan_pid(path_data);
 
