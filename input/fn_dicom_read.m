@@ -44,7 +44,7 @@ end
 %% LIDC xml parsing if exist the file in the series folder
 file = dir([ipath '*.xml']); % xml file information is stored by using structure shape (name,date...)
 if size(file, 1) > 0
-    filename = [ipath file.name]; % xml file path
+    filename = [ipath file.name(1)]; % xml file path
     
     % nodule information
     [nodule_img_3d, nodule_info] = fn_nodule_info(lung_img_3d,pid,dicom_tags,filename);
