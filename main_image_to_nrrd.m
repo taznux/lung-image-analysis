@@ -240,7 +240,7 @@ for idx = 1:numel(pid_list)
         sid_nodule_image_3d =  bitand(uint8(nodule_img_3d),2^(sid-1))>0;
         sid_nodules = strcmp(nodule_info.sid, str_sid);
         if sum(sid_nodules) > 0
-            nrrdwrite([ct_img_path '/' pid '/' pid '_CT_Phy' str_sid '-label.nrrd'], sid_nodule_image_3d(:,:,end:-1:1), meta)
+            fn_nrrdwrite([ct_img_path '/' pid '/' pid '_CT_Phy' str_sid '-label.nrrd'], sid_nodule_image_3d(:,:,end:-1:1), meta)
         end
     end
         
