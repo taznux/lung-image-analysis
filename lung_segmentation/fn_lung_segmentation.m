@@ -51,11 +51,11 @@ lung_right_table=tabulate(lung_right(lung_right>0));
 %get the region grown 3d lung image
 lung_seg_img_3d_rg = 0;
 if numel(lung_left_table)
-    lung_left_label=lung_left_table(end,1);
+    [~, lung_left_label] = max(lung_left_table(:,2));
     lung_seg_img_3d_rg=lung_seg_img_3d_rg|(lung_seg_label==lung_left_label);
 end
 if numel(lung_right_table)
-    lung_right_label=lung_right_table(end,1);
+    [~, lung_right_label] = max(lung_right_table(:,2));
     lung_seg_img_3d_rg=lung_seg_img_3d_rg|(lung_seg_label==lung_right_label);
 end
 
