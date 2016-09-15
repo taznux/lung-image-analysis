@@ -110,7 +110,7 @@ function new_path = path_reduce(path, L, r)
                 %x(2) - x(1)
             end
         catch
-            lasterr
+            %lasterr
         end
     end
     

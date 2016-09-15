@@ -7,7 +7,7 @@ x(:, 1) = double(x(:, 1)) * pixelsize(1);
 x(:, 2) = double(x(:, 2)) * pixelsize(2);
 x(:, 3) = double(x(:, 3)) * thick;
 
-for ds = pixelsize : pixelsize : (abs(thick) - pixelsize * 1.5)
+for ds = pixelsize(1) : pixelsize(1) : (abs(thick) - pixelsize(1) * 1.5)
     xx = x;
     xx(:, 3) = xx(:, 3) - ds;
     x = [x; xx];

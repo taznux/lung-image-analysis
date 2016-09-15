@@ -1,6 +1,6 @@
 function [nodule_candidates_img_3d]=fn_nodule_candidate_detection_multithreshold(interpol_lung_img_3d,lung_seg_img_3d)
 % get image size
-[xnum,ynum,znum]=size(interpol_lung_img_3d);
+[ynum,xnum,znum]=size(interpol_lung_img_3d);
 
 iso_px_size = 1;
 

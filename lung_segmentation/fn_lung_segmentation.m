@@ -1,4 +1,4 @@
-function [lung_seg_img_3d,T]=fn_lung_segmentation(lung_img_3d)
+function [lung_seg_img_3d,T]=fn_lung_segmentation(lung_img_3d,thick, pixelsize)
 % get image size
 [xnum,ynum,znum]=size(lung_img_3d);
 
@@ -77,7 +77,7 @@ for z=1:znum
     s = bwfill(lung_seg_img_3d(:,:,z),'holes');
    
     % remove cirtical section
-    corrected_s = fn_remove_critical_section(s, 20); %% critical section
+    corrected_s = fn_remove_critical_section(s, 30*pixelsize(1)); %% critical section
         
     lung_seg_img_3d(:,:,z) = corrected_s;
 end
