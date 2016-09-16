@@ -10,14 +10,14 @@ if znum == 1
     znum = 2;
 end
 
-xmm=(xnum-1)*xsize;
-ymm=(ynum-1)*ysize;
-zmm=(znum-1)*thick;
+xmm=(xnum-1)*xsize+1;
+ymm=(ynum-1)*ysize+1;
+zmm=(znum-1)*thick+1;
 
 
 
-[x,y,z]=meshgrid(0:xsize:xmm, 0:ysize:ymm, 0:thick:zmm); % origianl x y z axis ('mm'-unit)
-[xi,yi,zi] = meshgrid(0:iso_px_size:xmm, 0:iso_px_size:ymm ,0:iso_px_size:zmm); % new x y z axis ('mm'-unit)
+[x,y,z]=meshgrid(1:xsize:xmm, 1:ysize:ymm, 1:thick:zmm); % origianl x y z axis ('mm'-unit)
+[xi,yi,zi] = meshgrid(1:iso_px_size:xmm, 1:iso_px_size:ymm ,1:iso_px_size:zmm); % new x y z axis ('mm'-unit)
 
 
 %% interpolation via two method interpolation 3d & interpolation 3d using GPU

@@ -35,7 +35,7 @@ path_nodule = [pwd '/output_data']; %pwd : returns the current directory
 path_data = [pwd '/DATA/LIDC-IRDI']; %dcm files directory
 
 %% set values
-iso_px_size=1; % a standard unit ('mm-unit')
+iso_px_size=[]; % a standard unit ('mm-unit')
 
 
 %% directory paths
@@ -131,21 +131,23 @@ for idx = 1:numel(pid_list)
     filename_nodule_segmentation_eval = [ nodule_segmentation_eval_path pid '_'  num2str(iso_px_size,'%3.1f') '_' num2str(type,'%3.1f') '_nodule_segmentation_eval.mat'];
     if(fn_check_load_data(filename_nodule_segmentation_eval, load_nodule_segmentation_eval))
         [ ravd,voe,assd,v_r_list,lung_ext_list ] = fn_nodule_segmentation_eval(nodule_img_3d,lung_img_3d,nodule_info,thick,pixelsize,iso_px_size,[],v_list);
-        nodule_segmentation = [nodule_info(:,{'pid','sid','nid'}), table(ravd,voe)]
-        if(numel(nodule_info)>0)           
+        nodule_segmentation = [nodule_info(:,{'pid','sid','nid'}), table(ravd,voe,assd)]
+        if(numel(nodule_info)>0)
             pt = [];
             for sid = unique(nodule_info.sid)'
                 ravd = mean(nodule_segmentation(cell2mat(nodule_segmentation.sid(:)) == sid{1},:).ravd);
                 voe = mean(nodule_segmentation(cell2mat(nodule_segmentation.sid(:)) == sid{1},:).voe);
+                assd = mean(nodule_segmentation(cell2mat(nodule_segmentation.sid(:)) == sid{1},:).assd);
                 session = table;
                 session.pid = {pid};
                 session.sid = sid;
                 session.ravd = ravd;
                 session.voe = voe;
+                session.assd = assd;
                 
                 pt = [pt; session];
             end
-            pt = [pt; {pt.pid(1), {'a'}, mean(pt.ravd), mean(pt.voe)}];
+            pt = [pt; {pt.pid(1), {'a'}, mean(pt.ravd), mean(pt.voe), mean(pt.assd)}];
             pt
             nodule_segmentation_evaluation = [nodule_segmentation_evaluation; pt];
         end
@@ -160,10 +162,14 @@ end
 % Overall Evaluation
 nodule_segmentation_summary = [];
 for sid = unique(nodule_segmentation_evaluation.sid)'
-    tpr = mean(nodule_segmentation_evaluation(cell2mat(nodule_segmentation_evaluation.sid(:)) == sid{1},:).tpr);
+    ravd = mean(nodule_segmentation_evaluation(cell2mat(nodule_segmentation_evaluation.sid(:)) == sid{1},:).ravd);
+    voe = mean(nodule_segmentation_evaluation(cell2mat(nodule_segmentation_evaluation.sid(:)) == sid{1},:).voe);
+    assd = mean(nodule_segmentation_evaluation(cell2mat(nodule_segmentation_evaluation.sid(:)) == sid{1},:).assd);
     session = table;
     session.sid = sid;
-    session.tpr = tpr;
+    session.ravd = ravd;
+    session.voe = voe;
+    session.assd = assd;
     
     nodule_segmentation_summary = [nodule_segmentation_summary; session];
 end

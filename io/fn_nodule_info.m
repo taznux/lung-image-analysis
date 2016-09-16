@@ -142,9 +142,9 @@ for si = 1:sn
             
             nodule.Volume = nodule_region_values(i_r).Area*px_xsize*px_ysize*thick;% acctually volume
             nodule.FilledVolume = nodule_region_values(i_r).FilledArea*px_xsize*px_ysize*thick;
-            nodule.BoundingBox = nodule_region_values(i_r).BoundingBox.*[px_xsize px_ysize thick px_xsize px_ysize thick];
-            nodule.Centroid = nodule_region_values(i_r).Centroid.*[px_xsize px_ysize thick];
-            nodule.WeightedCentroid = nodule_region_values(i_r).WeightedCentroid.*[px_xsize px_ysize thick];
+            nodule.BoundingBox = (nodule_region_values(i_r).BoundingBox-1).*[px_xsize px_ysize thick px_xsize px_ysize thick]+1;
+            nodule.Centroid = (nodule_region_values(i_r).Centroid-1).*[px_xsize px_ysize thick]+1;
+            nodule.WeightedCentroid = (nodule_region_values(i_r).WeightedCentroid-1).*[px_xsize px_ysize thick]+1;
             
             nodule.MeanIntensity=nodule_region_values(i_r).MeanIntensity;
             nodule.MinIntensity=nodule_region_values(i_r).MinIntensity;

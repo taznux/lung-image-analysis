@@ -1,6 +1,7 @@
-function v_list=fn_nodule_segmentation_multitreshold(lung_img_3d,nodule_info,thick,pixelsize,iso_px_size)
+function v_list=fn_nodule_segmentation_multitreshold(interpol_lung_img_3d,nodule_info,thick,pixelsize,iso_px_size)
 nnum = size(nodule_info,1);
 
+%% resample
 if numel(iso_px_size)
     arearate = iso_px_size^2;
     volrate = iso_px_size^3;
@@ -15,7 +16,7 @@ min_vol_filt = (2/2)^3*pi*(4/3);
 max_vol_filt = (35/2)^3*pi*(4/3);
 
 %% Multi-thresholding
-Th_l = -200:100:1000;
+Th_l = -1000:100:1000;
 qstep = numel(Th_l);
 
 
@@ -25,23 +26,19 @@ v_list=cell(nnum,1);
 %%
 for n=1:nnum
     padding = [0 0 1];
-    bbox = round(nodule_info.BoundingBox_idx(n,:));
-    region = [bbox([2,1,3])-padding;bbox([2,1,3])+bbox([5,4,6])+padding];
-    lung_img_3d_ext_o=lung_img_3d(region(1,1):region(2,1),region(1,2):region(2,2),region(1,3):region(2,3));
-    
-    %% upsampling
+    bbox_idx = [nodule_info.BoundingBox_idx(n,1:3)-padding nodule_info.BoundingBox_idx(n,4:6)+2*padding];
+    region_idx = [bbox_idx([2,1,3]);bbox_idx([2,1,3])+bbox_idx([5,4,6])];
     if numel(iso_px_size)
-        [lung_img_3d_ext,~]=fn_interpol3d(lung_img_3d_ext_o,[],thick,pixelsize,iso_px_size);
-        thick=iso_px_size;
-        pixelsize(:)=iso_px_size;
+        region = round((region_idx-1).*repmat([pixelsize' thick],2,1)/iso_px_size) + 1;
     else
-        lung_img_3d_ext=lung_img_3d_ext_o;
+        region = round(region_idx);
     end
+    lung_img_3d_ext=interpol_lung_img_3d(region(1,1):region(2,1),region(1,2):region(2,2),region(1,3):region(2,3));
     [ynum,xnum,znum]=size(lung_img_3d_ext);
     
     %% Thresholding
     %   tic
-    Th_l1 = Th_l+mean(lung_img_3d_ext(:))-std(lung_img_3d_ext(:));
+    Th_l1 = Th_l+mean(lung_img_3d_ext(:));
     roi_3d = uint8(zeros(ynum,xnum,znum));
     for j = 1:numel(Th_l);
         se = strel('disk',1);
@@ -65,13 +62,17 @@ for n=1:nnum
         
         s = s_3D(i);
         vol = s.Area*volrate;
+        
+        if s.Area / numel(roi_3d) > 0.8
+            continue
+        end
 
         if(s.BoundingBox(4)*pixelsize(1) < 3 ...
                 || s.BoundingBox(5)*pixelsize(2) < 3 ) % noise
             continue;
         end
 
-        compactness = vol / prod(s.BoundingBox(4:6));
+        compactness = s.Area / prod(s.BoundingBox(4:6));
 
         if(vol > max_vol_filt) % vessel
             if Th_l1(k) >= Th_vessel && compactness < 0.5
