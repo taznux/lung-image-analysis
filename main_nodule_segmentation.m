@@ -162,10 +162,14 @@ end
 % Overall Evaluation
 nodule_segmentation_summary = [];
 for sid = unique(nodule_segmentation_evaluation.sid)'
-    tpr = mean(nodule_segmentation_evaluation(cell2mat(nodule_segmentation_evaluation.sid(:)) == sid{1},:).tpr);
+    ravd = mean(nodule_segmentation_evaluation(cell2mat(nodule_segmentation_evaluation.sid(:)) == sid{1},:).ravd);
+    voe = mean(nodule_segmentation_evaluation(cell2mat(nodule_segmentation_evaluation.sid(:)) == sid{1},:).voe);
+    assd = mean(nodule_segmentation_evaluation(cell2mat(nodule_segmentation_evaluation.sid(:)) == sid{1},:).assd);
     session = table;
     session.sid = sid;
-    session.tpr = tpr;
+    session.ravd = ravd;
+    session.voe = voe;
+    session.assd = assd;
     
     nodule_segmentation_summary = [nodule_segmentation_summary; session];
 end
