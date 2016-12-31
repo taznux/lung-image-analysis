@@ -32,7 +32,7 @@ global path_nodule;
 global path_data;
 
 path_nodule = [pwd '/output_data']; %pwd : returns the current directory
-path_data = [pwd '/DATA/LIDC-IRDI']; %dcm files directory
+path_data = [pwd '/DATA/LIDC-IDRI']; %dcm files directory
 
 %% set values
 iso_px_size=1; % a standard unit ('mm-unit')
@@ -71,13 +71,22 @@ load_evaluation_detection = true;
 
 
 %% get pids
+[dicom_path_list,pid_list]=fn_scan_pid(path_data);
 filename_pid_list = [path_nodule '/dicom_pid_list.mat'];
 if(fn_check_load_data(filename_pid_list, load_input))
     [dicom_path_list,pid_list]=fn_scan_pid(path_data);
-
-    save(filename_pid_list, 'dicom_path_list', 'pid_list');
+    if numel(dicom_path_list) > 0
+        save(filename_pid_list, 'dicom_path_list', 'pid_list');
+    end    
 else
     load(filename_pid_list);
+    if numel(dicom_path_list) == 0
+        delete(filename_pid_list);
+    end
+end
+
+if numel(dicom_path_list) == 0
+    fprintf('!! no dicom data found ... \n');
 end
 
 nodule_detection_evaluation = [];
@@ -126,7 +135,7 @@ for idx = 1:numel(pid_list)
     filename_segmentation = [seg_img_path pid '_'  num2str(iso_px_size,'%3.1f') '_segmentation.mat'];
     
     if(fn_check_load_data(filename_segmentation, load_segmentation))
-        [lung_seg_img_3d,T]=fn_lung_segmentation(interpol_lung_img_3d);
+        [lung_seg_img_3d,T]=fn_lung_segmentation(interpol_lung_img_3d,thick,pixelsize);
         
         save(filename_segmentation,'lung_seg_img_3d','T');
     else
@@ -203,16 +212,18 @@ end
 
 
 % Overall Evaluation
-nodule_detection_summary = [];
-for sid = unique(nodule_detection_evaluation.sid)'
-    tpr = mean(nodule_detection_evaluation(cell2mat(nodule_detection_evaluation.sid(:)) == sid{1},:).tpr);
-    session = table;
-    session.sid = sid;
-    session.tpr = tpr;
-    
-    nodule_detection_summary = [nodule_detection_summary; session];
+if numel(nodule_detection_evaluation) > 0
+    nodule_detection_summary = [];
+    for sid = unique(nodule_detection_evaluation.sid)'
+        tpr = mean(nodule_detection_evaluation(cell2mat(nodule_detection_evaluation.sid(:)) == sid{1},:).tpr);
+        session = table;
+        session.sid = sid;
+        session.tpr = tpr;
+
+        nodule_detection_summary = [nodule_detection_summary; session];
+    end
+    nodule_detection_summary
 end
-nodule_detection_summary
 
 
 % module rmpath
