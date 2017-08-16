@@ -8,5 +8,5 @@ Tested on LIDC-IDRI dataset (https://wiki.cancerimagingarchive.net/display/Publi
   - LIDC xml parsing
   - Evaluation of nodule segmentation, detection and characterization by LIDC xml annotations
 
-written in Matlab
+written in Matlab (tested in v2013b and v2016a, and required Image Processing Toolbox)
 by Wookjin Choi and Ji-Seok Yoon
