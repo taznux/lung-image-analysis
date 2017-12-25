@@ -161,6 +161,80 @@ selected = {'LIDC-IDRI-0068'
     'LIDC-IDRI-1010'
     'LIDC-IDRI-1011'};
 
+selected = {'LIDC-IDRI-0072'
+    'LIDC-IDRI-0090'
+    'LIDC-IDRI-0138'
+    'LIDC-IDRI-0149'
+    'LIDC-IDRI-0162'
+    'LIDC-IDRI-0163'
+    'LIDC-IDRI-0166'
+    'LIDC-IDRI-0167'
+    'LIDC-IDRI-0168'
+    'LIDC-IDRI-0171'
+    'LIDC-IDRI-0178'
+    'LIDC-IDRI-0180'
+    'LIDC-IDRI-0183'
+    'LIDC-IDRI-0185'
+    'LIDC-IDRI-0186'
+    'LIDC-IDRI-0187'
+    'LIDC-IDRI-0191'
+    'LIDC-IDRI-0203'
+    'LIDC-IDRI-0211'
+    'LIDC-IDRI-0212'
+    'LIDC-IDRI-0233'
+    'LIDC-IDRI-0234'
+    'LIDC-IDRI-0242'
+    'LIDC-IDRI-0246'
+    'LIDC-IDRI-0247'
+    'LIDC-IDRI-0249'
+    'LIDC-IDRI-0256'
+    'LIDC-IDRI-0257'
+    'LIDC-IDRI-0265'
+    'LIDC-IDRI-0267'
+    'LIDC-IDRI-0268'
+    'LIDC-IDRI-0270'
+    'LIDC-IDRI-0271'
+    'LIDC-IDRI-0273'
+    'LIDC-IDRI-0275'
+    'LIDC-IDRI-0276'
+    'LIDC-IDRI-0277'
+    'LIDC-IDRI-0283'
+    'LIDC-IDRI-0286'
+    'LIDC-IDRI-0289'
+    'LIDC-IDRI-0290'
+    'LIDC-IDRI-0314'
+    'LIDC-IDRI-0325'
+    'LIDC-IDRI-0332'
+    'LIDC-IDRI-0377'
+    'LIDC-IDRI-0385'
+    'LIDC-IDRI-0399'
+    'LIDC-IDRI-0405'
+    'LIDC-IDRI-0454'
+    'LIDC-IDRI-0470'
+    'LIDC-IDRI-0493'
+    'LIDC-IDRI-0510'
+    'LIDC-IDRI-0522'
+    'LIDC-IDRI-0543'
+    'LIDC-IDRI-0559'
+    'LIDC-IDRI-0562'
+    'LIDC-IDRI-0568'
+    'LIDC-IDRI-0580'
+    'LIDC-IDRI-0610'
+    'LIDC-IDRI-0624'
+    'LIDC-IDRI-0766'
+    'LIDC-IDRI-0771'
+    'LIDC-IDRI-0811'
+    'LIDC-IDRI-0875'
+    'LIDC-IDRI-0905'
+    'LIDC-IDRI-0921'
+    'LIDC-IDRI-0924'
+    'LIDC-IDRI-0939'
+    'LIDC-IDRI-0965'
+    'LIDC-IDRI-0994'
+    'LIDC-IDRI-1002'
+    'LIDC-IDRI-1004'};
+
+
 %% toolbox
 addpath(genpath([pwd '/toolbox']))
 
@@ -178,21 +252,21 @@ global path_nodule;
 global path_data;
 
 path_nodule = [pwd '/DATA']; %pwd : returns the current directory
-path_data = [pwd '/../../LIDC-IDRI/DOI/']; %dcm files directory
+path_data = [pwd '/DATA/LIDC-IDRI/']; %dcm files directory
 
 %% set values
 iso_px_size=1; % a standard unit ('mm-unit')
 
 
 %% directory paths
-ct_img_path=[path_nodule '/nodule_radiomics/'];
+ct_img_path=[path_nodule '/nodule-radiomics_72/'];
 
 %% make directory
 if ~isdir(ct_img_path); mkdir(ct_img_path); end
 
 
 %% saved data load or not
-load_input = false;
+load_input = true;
 
 %% get pids
 filename_pid_list = [path_nodule '/dicom_pid_list.mat'];
@@ -203,6 +277,8 @@ if(fn_check_load_data(filename_pid_list, load_input))
 else
     load(filename_pid_list);
 end
+
+all_parameters = table();
 
 %% main process
 for idx = 1:numel(pid_list)
@@ -217,22 +293,86 @@ for idx = 1:numel(pid_list)
     %% input part
         
     dicom_path = dicom_path_list{idx};
-    [lung_img_3d, nodule_img_3d, dicom_tags, thick, pixelsize, nodule_info] = fn_dicom_read(dicom_path,pid);
+    [lung_img_3d, nodule_img_3d, dicom_tags, thick, pixelsize, nodule_info] = fn_dicom_read(dicom_path,pid);    
+    fprintf('dicom images loaded ... \t\t\t %6.2f sec\n', toc);
     
     if numel(nodule_info) == 0
         continue
     end
+    [nodule_img_3d, nodule_info] = fn_nodule_info_update(lung_img_3d,nodule_img_3d,nodule_info,thick,pixelsize);
     
     meta = struct();
     meta.type = 'int16';
     meta.encoding = 'gzip';
     meta.spaceorigin = dicom_tags{1}.ImagePositionPatient';
-    meta.spacedirections = [reshape(dicom_tags{1}.ImageOrientationPatient,3,2),[0;0;1]]*diag([dicom_tags{1}.PixelSpacing; dicom_tags{1}.SliceThickness]);
+    meta.spacedirections = [reshape(dicom_tags{1}.ImageOrientationPatient,3,2),[0;0;1]]*diag([pixelsize; thick]);
     meta.endian = 'little';
+    
+    parameters = table();
+    parameters.PID = {pid};
+    try
+        parameters.PatientAge = dicom_tags{1}.PatientAge;
+    catch
+        parameters.PatientAge = '000Y';
+    end
+    try
+        parameters.PatientSex = dicom_tags{1}.PatientSex;
+    catch
+        parameters.PatientSex = ' ';
+    end
+    parameters.KVP = dicom_tags{1}.KVP;
+    parameters.XrayTubeCurrent = dicom_tags{1}.XrayTubeCurrent;
+    parameters.Exposure = dicom_tags{1}.Exposure;
+    try
+        parameters.ExposureTime = dicom_tags{1}.ExposureTime;
+    catch
+        parameters.ExposureTime = 0;
+    end
+    try
+        parameters.GeneratorPower = dicom_tags{1}.GeneratorPower;
+    catch
+        parameters.GeneratorPower = 0;
+    end
+    parameters.pixelsize = pixelsize';
+    parameters.thick = thick;
+    parameters.SliceThickness = dicom_tags{1}.SliceThickness;
+    try
+        parameters.SingleCollimationWidth = dicom_tags{1}.SingleCollimationWidth;
+    catch
+        parameters.SingleCollimationWidth = 0;
+    end
+    parameters.ConvolutionKernel = {dicom_tags{1}.ConvolutionKernel};
+    parameters.FilterType = {dicom_tags{1}.FilterType};
+    try
+        parameters.ContrastBolusAgent = {dicom_tags{1}.ContrastBolusAgent};
+        parameters.ContrastBolusRoute = {dicom_tags{1}.ContrastBolusRoute};
+    catch
+        parameters.ContrastBolusAgent = {''};
+        parameters.ContrastBolusRoute = {''};
+    end
+    try
+        parameters.StudyDescription = {dicom_tags{1}.StudyDescription};
+    catch
+        parameters.StudyDescription = {''};
+    end
+    try
+        parameters.SeriesDescription = {dicom_tags{1}.SeriesDescription};
+    catch
+        parameters.SeriesDescription = {''};
+    end
+    parameters.Manufacturer = {dicom_tags{1}.Manufacturer};
+    parameters.ManufacturerModelName = {dicom_tags{1}.ManufacturerModelName};
+    try
+        parameters.ProtocolName = {dicom_tags{1}.ProtocolName};
+    catch
+        parameters.ProtocolName = {''};
+    end
 
+    
+    tic
     if ~isdir([ct_img_path '/' pid]); mkdir([ct_img_path '/' pid]); end
     fn_nrrdwrite([ct_img_path '/' pid '/' pid  '_CT.nrrd'], int16(lung_img_3d(:,:,end:-1:1)), meta)
-    writetable([nodule_info(:,[1:3 5:6 10:12 15:17]) nodule_info.Characteristics], [ct_img_path '/' pid '/' pid '.csv'])
+    writetable([nodule_info(:,[1:3 5:6 end 10:12 15:17]) nodule_info.Characteristics], [ct_img_path pid '/' pid '.csv'])
 
     meta.type = 'uint8';
     for sid = 1:4
@@ -243,11 +383,12 @@ for idx = 1:numel(pid_list)
             fn_nrrdwrite([ct_img_path '/' pid '/' pid '_CT_Phy' str_sid '-label.nrrd'], sid_nodule_image_3d(:,:,end:-1:1), meta)
         end
     end
+    
         
     fprintf('dicom images and annotations converted ... \t\t\t %6.2f sec\n', toc);
     
     
-    
+    all_parameters = [all_parameters; parameters];
     
 end
 
