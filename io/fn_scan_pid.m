@@ -40,7 +40,7 @@ for idx = 1:dirnum
                 if k == 0
                     pid_list{j}=pid;
                 else
-                    pid_list{j}=[pid '_' num2str(k)];
+                    pid_list{j}=[pid '-' num2str(k)];
                 end
                 dicom_path_list{j} = serise_path; % get the last directory lists
                 j = j+1;
