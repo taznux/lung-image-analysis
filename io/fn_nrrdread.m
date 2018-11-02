@@ -181,14 +181,21 @@ switch (meta.encoding)
   tmp = fread(fidIn, inf, 'uint8=>uint8');
   fwrite(fidTmp, tmp, 'uint8');
   fclose(fidTmp);
-  
-  gunzip(tmpFile)
-  
+  try
+    gunzip(tmpFile)
+  catch
+  end
+  delete (tmpFile);
   fidTmp = fopen(tmpBase, 'rb');
-  cleaner = onCleanup(@() fclose(fidTmp));
+  %cleaner = onCleanup(@() fclose(fidTmp));
   
   meta.encoding = 'raw';
-  data = readData(fidTmp, meta, datatype);
+  try
+    data = readData(fidTmp, meta, datatype);
+  catch
+  end
+  fclose(fidTmp);
+  delete (tmpBase);
   
  case {'txt', 'text', 'ascii'}
   
