@@ -189,24 +189,30 @@ switch (encoding)
      % Store in a raw file before compressing
      tmpBase = tempname();
      tmpFile = [tmpBase '.gz'];
+
      fidTmpRaw = fopen(tmpBase, 'wb');
      assert(fidTmpRaw > 3, 'Could not open temporary file for GZIP compression');
-     
-     fwrite(fidTmpRaw, matrix(:), datatype);
+
+     try
+        fwrite(fidTmpRaw, matrix(:), datatype);      
+        % Now we gzip our raw file
+        gzip(tmpBase);
+     catch
+     end
      fclose(fidTmpRaw);
-     
-     % Now we gzip our raw file
-     gzip(tmpBase);
+     delete (tmpBase);
      
      % Finally, we put this info into our nrrd file (fidIn)
      fidTmpRaw = fopen(tmpFile, 'rb');
-     tmp = fread(fidTmpRaw, inf, 'uint8=>uint8');
-     cleaner = onCleanup(@() fclose(fidTmpRaw));
-     ok = fwrite (fidIn, tmp, 'uint8');
+     try
+         tmp = fread(fidTmpRaw, inf, 'uint8=>uint8');
+     catch
+     end
+     fclose(fidTmpRaw);
+     delete (tmpFile);
      
-     %delete (tmpBase);
-     %delete (tmpFile);
-
+     %cleaner = onCleanup(@() fclose(fidTmpRaw));
+     ok = fwrite (fidIn, tmp, 'uint8');
 
  case {'ascii'}
   
