@@ -1,6 +1,5 @@
 Lung Image Analysis Framework
 ====================================================
-[![Stories in Ready](https://badge.waffle.io/taznux/lung-image-analysis.svg?label=ready&title=Ready)](http://waffle.io/taznux/lung-image-analysis)
 
 A basic framework for pulmonary nodule detection and characterization in CT
 
