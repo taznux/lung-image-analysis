@@ -79,11 +79,11 @@ is_pass = 0;
 for idx = 1:numel(pid_list)
     pid = pid_list{idx};
 
-     if strfind(pid, '0405') > 0
-       is_pass = 0;
-     else
-       is_pass = 1;
-     end
+%      if strfind(pid, '0405') > 0
+%        is_pass = 0;
+%      else
+%        is_pass = 1;
+%      end
 
     if is_pass > 0 || sum(strfind(pid,'.')) > 0
         continue

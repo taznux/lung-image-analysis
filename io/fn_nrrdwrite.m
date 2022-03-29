@@ -195,11 +195,14 @@ switch (encoding)
 
      try
         fwrite(fidTmpRaw, matrix(:), datatype);      
-        % Now we gzip our raw file
-        gzip(tmpBase);
      catch
      end
      fclose(fidTmpRaw);
+     try
+         % Now we gzip our raw file
+        gzip(tmpBase);
+     catch
+     end
      delete (tmpBase);
      
      % Finally, we put this info into our nrrd file (fidIn)

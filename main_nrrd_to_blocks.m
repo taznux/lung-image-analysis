@@ -218,7 +218,7 @@ pid_list = {dir_nrrd.name};
 
 
 %% main process
-for idx = 396:numel(pid_list)
+for idx = 1:numel(pid_list)
     pid = pid_list{idx};
     
     if sum(strfind(pid,'.')) > 0

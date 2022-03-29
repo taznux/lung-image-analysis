@@ -321,7 +321,7 @@ for idx = 1:numel(pid_list)
         parameters.PatientSex = ' ';
     end
     parameters.KVP = dicom_tags{1}.KVP;
-    parameters.XrayTubeCurrent = dicom_tags{1}.XrayTubeCurrent;
+    parameters.XRayTubeCurrent = dicom_tags{1}.XRayTubeCurrent;
     parameters.Exposure = dicom_tags{1}.Exposure;
     try
         parameters.ExposureTime = dicom_tags{1}.ExposureTime;
