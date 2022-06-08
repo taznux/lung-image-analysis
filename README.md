@@ -1,5 +1,6 @@
 Lung Image Analysis Framework
 ====================================================
+**Note: Here is a full system for lung cancer screening radiomics. https://github.com/taznux/LungCancerScreeningRadiomics**
 
 A basic framework for pulmonary nodule detection and characterization in CT
 
